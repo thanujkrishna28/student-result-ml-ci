@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  train-and-test:
+  train-test-deliver:
     runs-on: ubuntu-latest
 
     steps:
@@ -39,3 +39,14 @@ jobs:
 
       - name: Run automated ML tests
         run: python -m unittest discover -v
+
+      - name: Upload validated ML artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: student-performance-ml-artifacts
+          path: |
+            student_performance_model.pkl
+            metrics.json
+            SrudentPerformanceScore.csv
+          if-no-files-found: error
+          retention-days: 7
