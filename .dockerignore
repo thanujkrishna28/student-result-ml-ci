@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.git/
+.github/
+test_*.py
+SrudentPerformanceScore.csv
+release_candidate/
