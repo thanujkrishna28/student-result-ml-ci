@@ -1,7 +1,7 @@
 import json
 import sys
 
-MINIMUM_R2 = 0.50
+MINIMUM_R2 = 0.99
 
 print("Reading model evaluation metrics...")
 
