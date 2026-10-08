@@ -84,7 +84,7 @@ jobs:
       # 12. Test health endpoint
       - name: Test health endpoint
         run: |
-          curl --fail http://localhost:5000/
+          curl --fail http://localhost:5001/
 
 
       # 13. Test prediction endpoint
