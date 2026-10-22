@@ -8,6 +8,9 @@ import joblib
 import pandas as pd
 from flask import Flask, jsonify, request, g
 
+from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
+from flask import Response
+
 
 app = Flask(__name__)
 
@@ -26,6 +29,31 @@ FEATURES = [
     "Study_Hours"
 ]
 
+HTTP_REQUESTS = Counter(
+    "student_api_http_requests_total",
+    "Total HTTP requests",
+    ["method", "path", "status"]
+)
+
+HTTP_LATENCY = Histogram(
+    "student_api_http_request_duration_seconds",
+    "HTTP request duration in seconds",
+    ["method", "path"]
+)
+
+PREDICTIONS = Counter(
+    "student_api_predictions_total",
+    "Prediction attempts",
+    ["result"]
+)
+
+MODEL_LOADED = Gauge(
+    "student_api_model_loaded",
+    "Whether the model is available"
+)
+
+MODEL_LOADED.set(int(MODEL_PATH.is_file()))
+
 
 @app.before_request
 def log_request_start():
@@ -38,6 +66,7 @@ def log_request_start():
         request.method,
         request.path
     )
+    
 
 
 @app.after_request
@@ -54,6 +83,19 @@ def log_request_end(response):
         response.status_code,
         duration * 1000
     )
+    
+    if request.path != "/metrics":
+        HTTP_REQUESTS.labels(
+            method=request.method,
+            path=request.path,
+            status=str(response.status_code)
+        ).inc()
+
+        HTTP_LATENCY.labels(
+            method=request.method,
+            path=request.path
+        ).observe(duration)
+
     return response
 
 
